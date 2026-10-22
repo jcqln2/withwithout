@@ -1,0 +1,87 @@
+{
+  "uid": "phase1-delay",
+  "title": "Phase 1 block delay",
+  "tags": ["withwithout", "hoodi"],
+  "timezone": "utc",
+  "schemaVersion": 39,
+  "version": 1,
+  "refresh": "10s",
+  "time": { "from": "now-6h", "to": "now" },
+  "panels": [
+    {
+      "type": "text",
+      "title": "How to read this",
+      "gridPos": { "h": 5, "w": 24, "x": 0, "y": 0 },
+      "options": {
+        "mode": "markdown",
+        "content": "Source: public Hoodi beacon `https://beacon.hoodi.ethpandaops.io`, arm `observer`, node `hoodi-public-1`. Delay is the collector's UTC receipt time minus slot start (`genesis_time + slot * seconds_per_slot`). That includes the network path from the beacon to this collector, so it is not a Track A result. `block_gossip` is stored when it is first; a later `block` event for the same root is counted as a duplicate. The time picker is the window. Stored events are n. Reproduce with `make up` from the repo."
+      }
+    },
+    {
+      "type": "stat",
+      "title": "n stored",
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "gridPos": { "h": 4, "w": 6, "x": 0, "y": 5 },
+      "targets": [{ "refId": "A", "expr": "sum(withwithout_events_total{outcome=\"stored\"})" }],
+      "options": { "reduceOptions": { "calcs": ["lastNotNull"] } },
+      "fieldConfig": { "defaults": { "unit": "none" }, "overrides": [] }
+    },
+    {
+      "type": "stat",
+      "title": "duplicates",
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "gridPos": { "h": 4, "w": 6, "x": 6, "y": 5 },
+      "targets": [{ "refId": "A", "expr": "sum(withwithout_events_total{outcome=\"duplicate\"})" }],
+      "options": { "reduceOptions": { "calcs": ["lastNotNull"] } },
+      "fieldConfig": { "defaults": { "unit": "none" }, "overrides": [] }
+    },
+    {
+      "type": "stat",
+      "title": "reconnects",
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "gridPos": { "h": 4, "w": 6, "x": 12, "y": 5 },
+      "targets": [{ "refId": "A", "expr": "withwithout_reconnects_total" }],
+      "options": { "reduceOptions": { "calcs": ["lastNotNull"] } },
+      "fieldConfig": { "defaults": { "unit": "none" }, "overrides": [] }
+    },
+    {
+      "type": "stat",
+      "title": "clock offset",
+      "description": "Collector clock minus the beacon HTTP Date header. Not subtracted from delay.",
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "gridPos": { "h": 4, "w": 6, "x": 18, "y": 5 },
+      "targets": [{ "refId": "A", "expr": "withwithout_clock_offset_milliseconds" }],
+      "options": { "reduceOptions": { "calcs": ["lastNotNull"] } },
+      "fieldConfig": { "defaults": { "unit": "ms" }, "overrides": [] }
+    },
+    {
+      "type": "timeseries",
+      "title": "Block delay from slot start",
+      "description": "Quantiles of stored block and block_gossip delays over the dashboard window.",
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "gridPos": { "h": 9, "w": 24, "x": 0, "y": 9 },
+      "fieldConfig": {
+        "defaults": { "unit": "ms", "custom": { "drawStyle": "line", "fillOpacity": 10 } },
+        "overrides": []
+      },
+      "options": { "legend": { "displayMode": "list", "placement": "bottom" }, "tooltip": { "mode": "multi" } },
+      "targets": [
+        {
+          "refId": "p50",
+          "legendFormat": "p50",
+          "expr": "histogram_quantile(0.50, sum by (le) (rate(withwithout_block_delay_milliseconds_bucket[5m])))"
+        },
+        {
+          "refId": "p90",
+          "legendFormat": "p90",
+          "expr": "histogram_quantile(0.90, sum by (le) (rate(withwithout_block_delay_milliseconds_bucket[5m])))"
+        },
+        {
+          "refId": "p99",
+          "legendFormat": "p99",
+          "expr": "histogram_quantile(0.99, sum by (le) (rate(withwithout_block_delay_milliseconds_bucket[5m])))"
+        }
+      ]
+    }
+  ]
+}

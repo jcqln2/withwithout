@@ -13,6 +13,9 @@ down:
 
 lint:
 	$(COMPOSE) config --quiet
+	cd collector && test -z "$$(gofmt -l .)"
+	cd collector && go vet ./...
 
 test:
 	./scripts/check_scaffold.sh
+	cd collector && go test ./...

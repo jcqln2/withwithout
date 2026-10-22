@@ -43,10 +43,28 @@ services:
       - "${GRAFANA_PORT:-3000}:3000"
     volumes:
       - ../../dashboards/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ../../dashboards/grafana/json:/var/lib/grafana/dashboards:ro
       - grafana_data:/var/lib/grafana
     depends_on:
       timescaledb:
         condition: service_healthy
+
+  collector:
+    build:
+      context: ../../collector
+    environment:
+      BEACON_API_URL: ${BEACON_API_URL:-https://beacon.hoodi.ethpandaops.io}
+      NODE_ID: ${NODE_ID:-hoodi-public-1}
+      ARM: ${ARM:-observer}
+      BLOCK_GOSSIP: ${BLOCK_GOSSIP:-true}
+      DATABASE_URL: postgres://${POSTGRES_USER:-verifier}:${POSTGRES_PASSWORD:-verifier}@timescaledb:5432/${POSTGRES_DB:-verifier}?sslmode=disable
+      METRICS_ADDR: ":8080"
+    ports:
+      - "${COLLECTOR_PORT:-8080}:8080"
+    depends_on:
+      timescaledb:
+        condition: service_healthy
+    restart: unless-stopped
 
 volumes:
   timescale_data:

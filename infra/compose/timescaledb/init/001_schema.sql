@@ -29,6 +29,7 @@ CREATE INDEX block_arrivals_block_idx
 CREATE TABLE head_events (
     seen_at_utc timestamptz NOT NULL,
     slot bigint NOT NULL,
+    block_root text NOT NULL,
     node_id text NOT NULL,
     arm text NOT NULL,
     delay_ms bigint,

@@ -135,7 +135,7 @@ Implemented in `infra/compose/timescaledb/init/001_schema.sql`.
 
 ```
 block_arrivals(slot, block_root, node_id, arm, topic, seen_at_utc, delay_ms_from_slot_start, client, client_version, gateway_version)
-head_events(slot, node_id, arm, seen_at_utc, delay_ms, client, client_version, gateway_version)
+head_events(slot, block_root, node_id, arm, seen_at_utc, delay_ms, client, client_version, gateway_version)
 node_health(ts, node_id, arm, peers, cpu_pct, mem_bytes, net_in_bytes, net_out_bytes, clock_offset_ms, client, client_version, gateway_version)
 slots(slot, slot_start_utc, proposer_index, block_root, missed bool, builder_type)
 validator_epoch(epoch, validator_index, head_ok, target_ok, source_ok, attestation_missed, inclusion_delay, cl_reward_gwei)

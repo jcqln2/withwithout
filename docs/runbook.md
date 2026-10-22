@@ -1,6 +1,6 @@
 # Runbook
 
-Phase 0 brings up an empty monitoring stack. It does not connect to a beacon node.
+`make up` starts TimescaleDB, Prometheus, Grafana, and the Phase 1 collector. The collector follows the public Hoodi beacon API. It does not run a consensus client, and it does not join mump2p.
 
 ## Start and stop
 
@@ -11,13 +11,14 @@ make up
 make down
 ```
 
-`make lint` checks that Compose parses. `make test` checks that the scaffold files exist and that Compose parses.
+`make lint` checks that Compose parses and that the collector is gofmt-clean and `go vet` clean. `make test` runs the scaffold check and `go test ./...` in `collector/`.
 
 | Service | URL | Local default login |
 |---------|-----|---------------------|
 | Grafana | http://localhost:3000 | `admin` / `admin` |
 | Prometheus | http://localhost:9090 | none |
 | TimescaleDB | `localhost:5432`, database `verifier` | `verifier` / `verifier` |
+| Collector metrics | http://localhost:8080/metrics | none |
 
 Override ports and passwords with a gitignored `.env`. The variable names are in `.env.example`. Grafana's Postgres datasource reads `POSTGRES_USER`, `POSTGRES_PASSWORD`, and `POSTGRES_DB` from the container environment.
 
@@ -28,7 +29,7 @@ The database schema is applied only when the Timescale volume is created. After 
 | Phase | State |
 |-------|--------|
 | 0 Scaffold, hypotheses, monitoring stack | This repo |
-| 1 Slot clock and one-node collector | Not started |
+| 1 Slot clock and one-node collector | Running against the public Hoodi beacon when `make up` is up. Not yet a 24 h gap-free soak. |
 | 2 A/B/A harness | Not started |
 | 3 Cohort ingest | Not started |
 | 4 Difference-in-differences | Not started |

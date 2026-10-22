@@ -34,7 +34,9 @@ The Gateway guide's "current stable" list, retrieved 2026-10-22 from [Connecting
 
 The execution client is not chosen. All arms must use the same EL client and version. Pick it when the Phase 2 machine is budgeted.
 
-**Unverified assumption:** which Beacon API SSE topic is the first observation of a block. The guide does not specify `block` versus `block_gossip` for Lighthouse. Phase 1 must record the topic list the pinned client actually emits, and must not guess.
+**Checked on 2026-10-22:** `https://beacon.hoodi.ethpandaops.io/eth/v1/events?topics=block,block_gossip,head` emitted `block_gossip`, then `head`, then `block` for slot 4206974. The response identified the backend as Teku v26.10.1 via `X-Dugtrio-Endpoint-Type` and `X-Dugtrio-Endpoint-Version`. Genesis time was `1742213400`, `SECONDS_PER_SLOT` was 12, `CONFIG_NAME` was hoodi. That endpoint is a load balancer, so a later connection can land on a different client.
+
+**Still unverified:** the same topic order on Lighthouse v8.2.3, which is the provisional client for our own nodes. Do not copy the Teku result onto Lighthouse.
 
 ## 4. Hardware budget, not a purchase
 
