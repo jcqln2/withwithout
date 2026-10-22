@@ -1,0 +1,20 @@
+---
+description: Integrity rules for the Optimum independent verifier. Apply to every session.
+alwaysApply: true
+---
+
+You are helping build an independent verification system. Integrity of measurement matters more than speed.
+
+- Work only on the phase the user names. Do not add features outside it.
+- Never hardcode secrets; use env vars and `.env.example`.
+- Time: store all timestamps as UTC with millisecond precision. Never use local time.
+- Never silently drop data. Log and count every skipped, duplicate, or invalid event.
+- Every analysis function needs a test with synthetic data and a known answer.
+- Record client name, client version, and gateway version on every measurement row. Use null for gateway version on arms that have no sidecar.
+- All statistics: report n, median, p90, p99, and bootstrap CIs. No mean-only summaries.
+- Go: idiomatic, context-aware cancellation, table-driven tests, structured logging.
+- Python: type hints, pytest, no notebooks as the source of truth (notebooks may only call tested functions).
+- If a requirement is ambiguous or depends on an unverified assumption (for example, how an SSE topic behaves in a given client), stop and list the assumption instead of guessing.
+- Small commits. Update `docs/methodology.md` whenever measurement logic changes.
+
+Phase 0 is the scaffold in this repo. The next phase is Phase 1, and only when the user asks for it.

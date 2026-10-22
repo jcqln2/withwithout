@@ -1,0 +1,54 @@
+name: withwithout
+
+services:
+  timescaledb:
+    image: timescale/timescaledb:2.31.0-pg16
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-verifier}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-verifier}
+      POSTGRES_DB: ${POSTGRES_DB:-verifier}
+    ports:
+      - "${TIMESCALE_PORT:-5432}:5432"
+    volumes:
+      - timescale_data:/var/lib/postgresql/data
+      - ./timescaledb/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  prometheus:
+    image: prom/prometheus:v3.15.1
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --storage.tsdb.path=/prometheus
+      - --web.enable-lifecycle
+    ports:
+      - "${PROMETHEUS_PORT:-9090}:9090"
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+
+  grafana:
+    image: grafana/grafana:13.0.11
+    environment:
+      GF_SECURITY_ADMIN_USER: ${GRAFANA_ADMIN_USER:-admin}
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:-admin}
+      GF_USERS_ALLOW_SIGN_UP: "false"
+      POSTGRES_USER: ${POSTGRES_USER:-verifier}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-verifier}
+      POSTGRES_DB: ${POSTGRES_DB:-verifier}
+    ports:
+      - "${GRAFANA_PORT:-3000}:3000"
+    volumes:
+      - ../../dashboards/grafana/provisioning:/etc/grafana/provisioning:ro
+      - grafana_data:/var/lib/grafana
+    depends_on:
+      timescaledb:
+        condition: service_healthy
+
+volumes:
+  timescale_data:
+  prometheus_data:
+  grafana_data:
